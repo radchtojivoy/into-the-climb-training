@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react'
+
 interface IconProps {
   name:
     | 'cal'
@@ -24,11 +26,12 @@ interface IconProps {
     | 'list'
     | 'img'
   className?: string
+  style?: CSSProperties
 }
 
-export function Icon({ name, className }: IconProps) {
+export function Icon({ name, className, style }: IconProps) {
   return (
-    <svg className={className} aria-hidden="true">
+    <svg className={className} style={style} aria-hidden="true">
       <use href={`#i-${name}`} />
     </svg>
   )

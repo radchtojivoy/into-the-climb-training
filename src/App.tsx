@@ -18,6 +18,7 @@ import { StudentFunTrainingPage } from './pages/student/StudentFunTrainingPage'
 import { StudentDashboardPage } from './pages/student/StudentDashboardPage'
 import { StudentMaterialsPage } from './pages/student/StudentMaterialsPage'
 import { MaterialArticlePage } from './pages/student/MaterialArticlePage'
+import { InstallPrompt } from './components/InstallPrompt'
 
 function FullScreenSpinner() {
   return (
@@ -61,8 +62,11 @@ function RequireActiveStudent({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
+  const { session } = useAuth()
   return (
-    <Routes>
+    <>
+      {session && <InstallPrompt />}
+      <Routes>
       <Route path="/" element={<Gate />} />
       <Route
         path="/login"
@@ -220,6 +224,7 @@ export default function App() {
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </>
   )
 }

@@ -7,6 +7,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectRegister: 'auto',
       registerType: 'autoUpdate',
       includeAssets: ['brand/logo.png'],
       manifest: {
@@ -24,8 +28,11 @@ export default defineConfig({
           { src: '/icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,woff2}'],
+      },
+      devOptions: {
+        enabled: false,
       },
     }),
   ],

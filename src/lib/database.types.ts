@@ -103,6 +103,15 @@ export type MaterialRow = {
   updated_at: string
 }
 
+export type PushSubscriptionRow = {
+  id: string
+  user_id: string
+  endpoint: string
+  p256dh: string
+  auth: string
+  created_at: string
+}
+
 type Table<Row, Insert, Update> = {
   Row: Row
   Insert: Insert
@@ -123,6 +132,11 @@ export type Database = {
       warmup_templates: Table<WarmupTemplateRow, Partial<WarmupTemplateRow>, Partial<WarmupTemplateRow>>
       material_categories: Table<MaterialCategoryRow, Partial<MaterialCategoryRow>, Partial<MaterialCategoryRow>>
       materials: Table<MaterialRow, Partial<MaterialRow>, Partial<MaterialRow>>
+      push_subscriptions: Table<
+        PushSubscriptionRow,
+        Partial<PushSubscriptionRow> & { user_id: string; endpoint: string; p256dh: string; auth: string },
+        Partial<PushSubscriptionRow>
+      >
     }
     Views: Record<string, never>
     Functions: Record<string, never>

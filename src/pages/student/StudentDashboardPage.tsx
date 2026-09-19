@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/AuthProvider'
 import { useMyMonthTrainings, useNextTraining } from '../../hooks/useMyTrainings'
 import { useTrainingTypes } from '../../hooks/useTrainingTypes'
 import { useUploadAvatar } from '../../hooks/useAvatar'
+import { usePushNotifications } from '../../hooks/usePushNotifications'
 import { MonthRoute } from '../../components/student/MonthRoute'
 import { StudentTabBar } from '../../components/student/StudentTabBar'
 import { Icon } from '../../components/ui/Icon'
@@ -30,6 +31,7 @@ export function StudentDashboardPage() {
   const uploadAvatar = useUploadAvatar()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [breakdownOpen, setBreakdownOpen] = useState(false)
+  const push = usePushNotifications()
 
   if (!profile || !types) {
     return (
@@ -239,6 +241,28 @@ export function StudentDashboardPage() {
               </div>
             )}
           </div>
+
+          {push.supported && push.state !== 'denied' && (
+            <div className="card" style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>Нагадування про тренування</div>
+                <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
+                  {push.state === 'subscribed'
+                    ? 'Увімкнено — вранці нагадаємо, якщо сьогодні є тренування'
+                    : 'Отримувати push у день тренування'}
+                </div>
+              </div>
+              {push.state === 'subscribed' ? (
+                <button className="btn-link" onClick={() => push.unsubscribe()} disabled={push.loading}>
+                  Вимкнути
+                </button>
+              ) : (
+                <button className="btn-link" onClick={() => push.subscribe()} disabled={push.loading}>
+                  Увімкнути
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <StudentTabBar />
