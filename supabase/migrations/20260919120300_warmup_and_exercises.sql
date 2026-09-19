@@ -35,7 +35,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if not public.is_coach() then
+  if auth.uid() is not null and not public.is_coach() then
     if new.text is distinct from old.text
       or new.position is distinct from old.position
       or new.training_id is distinct from old.training_id then
@@ -91,7 +91,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if not public.is_coach() then
+  if auth.uid() is not null and not public.is_coach() then
     if new.title is distinct from old.title
       or new.description is distinct from old.description
       or new.video_url is distinct from old.video_url

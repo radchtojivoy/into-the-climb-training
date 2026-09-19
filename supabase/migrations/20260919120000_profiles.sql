@@ -80,7 +80,9 @@ security definer
 set search_path = public
 as $$
 begin
-  if not public.is_coach() then
+  -- auth.uid() is null поза запитами через API (наприклад, у SQL Editor
+  -- або в самих міграціях) — там дозволяємо без обмежень, це дії адміністратора.
+  if auth.uid() is not null and not public.is_coach() then
     if new.role is distinct from old.role
       or new.status is distinct from old.status
       or new.coach_id is distinct from old.coach_id

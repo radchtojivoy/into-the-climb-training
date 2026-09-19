@@ -67,7 +67,7 @@ begin
     raise exception 'Тренування не можна перепризначити іншому учню';
   end if;
 
-  if not (public.is_coach() and public.is_my_student(old.student_id)) then
+  if auth.uid() is not null and not (public.is_coach() and public.is_my_student(old.student_id)) then
     if new.type_id is distinct from old.type_id
       or new.is_fun is distinct from old.is_fun
       or new.date is distinct from old.date then
