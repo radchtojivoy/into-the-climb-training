@@ -47,6 +47,7 @@ export function TrainingEditorPage() {
   const [exercises, setExercises] = useState<EditableExercise[]>([])
   const [showLibraryPicker, setShowLibraryPicker] = useState(false)
   const hydrated = useRef(false)
+  const originalIds = useRef<{ warmup: string[]; exercises: string[] }>({ warmup: [], exercises: [] })
 
   useEffect(() => {
     if (!editorData || hydrated.current) return
@@ -54,6 +55,10 @@ export function TrainingEditorPage() {
     if (editorData.training) setTypeId(editorData.training.type_id)
     setWarmupItems(editorData.warmupItems)
     setExercises(editorData.exercises)
+    originalIds.current = {
+      warmup: editorData.warmupItems.map((w) => w.key),
+      exercises: editorData.exercises.map((e) => e.key),
+    }
   }, [editorData])
 
   const orderedTypes = (types ?? [])
@@ -65,7 +70,7 @@ export function TrainingEditorPage() {
 
   function applyTemplate() {
     if (!matchingTemplate) return
-    setWarmupItems(matchingTemplate.items.map((text) => ({ key: newKey(), text })))
+    setWarmupItems(matchingTemplate.items.map((text) => ({ key: newKey(), text, isDone: false })))
   }
 
   function updateWarmupText(key: string, text: string) {
@@ -77,11 +82,14 @@ export function TrainingEditorPage() {
   }
 
   function addWarmup() {
-    setWarmupItems((items) => [...items, { key: newKey(), text: '' }])
+    setWarmupItems((items) => [...items, { key: newKey(), text: '', isDone: false }])
   }
 
   function addManualExercise() {
-    setExercises((ex) => [...ex, { key: newKey(), title: '', description: '', videoUrl: '', libraryExerciseId: null }])
+    setExercises((ex) => [
+      ...ex,
+      { key: newKey(), title: '', description: '', videoUrl: '', libraryExerciseId: null, result: null, resultComment: '' },
+    ])
   }
 
   function addFromLibrary(libId: string) {
@@ -95,6 +103,8 @@ export function TrainingEditorPage() {
         description: lib.description ?? '',
         videoUrl: lib.video_url ?? '',
         libraryExerciseId: lib.id,
+        result: null,
+        resultComment: '',
       },
     ])
     setShowLibraryPicker(false)
@@ -109,7 +119,13 @@ export function TrainingEditorPage() {
   }
 
   async function handleSave() {
-    await saveTraining.mutateAsync({ typeId, warmupItems, exercises })
+    await saveTraining.mutateAsync({
+      typeId,
+      warmupItems,
+      exercises,
+      originalWarmupIds: originalIds.current.warmup,
+      originalExerciseIds: originalIds.current.exercises,
+    })
     navigate(`/coach/students/${studentId}`)
   }
 
@@ -170,6 +186,11 @@ export function TrainingEditorPage() {
       <ul className="ed-list">
         {warmupItems.map((w) => (
           <li key={w.key}>
+            {w.isDone && (
+              <span title="Учень виконав" style={{ color: 'var(--olive)', flex: 'none' }}>
+                <Icon name="check" style={{ width: 16, height: 16, display: 'block' }} />
+              </span>
+            )}
             <input
               value={w.text}
               placeholder="Пункт розминки"
@@ -224,6 +245,33 @@ export function TrainingEditorPage() {
               onChange={(e) => updateExercise(ex.key, { videoUrl: e.target.value })}
             />
           </label>
+
+          {(ex.result || ex.resultComment) && (
+            <>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', margin: '10px 0 6px' }}>
+                Результат учня
+              </div>
+              <div className="ex-res" style={{ borderRadius: 14 }}>
+                <div className="seg" role="group" aria-label="Результат учня">
+                  {(
+                    [
+                      ['ok', 'check', 'Вдало'],
+                      ['part', 'half', 'Частково'],
+                      ['fail', 'x', 'Невдало'],
+                    ] as const
+                  ).map(([value, icon, label]) => (
+                    <button key={value} type="button" data-v={value} aria-pressed={ex.result === value} disabled>
+                      <Icon name={icon} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {ex.resultComment && (
+                  <textarea rows={2} aria-label="Коментар учня" value={ex.resultComment} readOnly />
+                )}
+              </div>
+            </>
+          )}
         </div>
       ))}
 

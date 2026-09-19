@@ -2206,7 +2206,7 @@
 
 /* Запобіжник: іконка без класу (поза звичними .tab/.round-btn/... контекстами)
    інакше розтягується на розмір SVG за замовчуванням (300x150). */
-svg[aria-hidden='true']:not([class]) {
+:where(svg[aria-hidden='true']:not([class])) {
   width: 20px;
   height: 20px;
 }

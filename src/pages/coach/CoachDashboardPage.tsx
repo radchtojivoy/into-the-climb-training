@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../auth/AuthProvider'
 import { usePendingStudents, useActiveStudents } from '../../hooks/useCoachStudents'
+import { useUploadAvatar } from '../../hooks/useAvatar'
 import { avatarColor, initials } from '../../lib/avatarColor'
 import { Icon } from '../../components/ui/Icon'
 import { CoachTabBar } from '../../components/coach/CoachTabBar'
@@ -14,6 +15,13 @@ export function CoachDashboardPage() {
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [busyId, setBusyId] = useState<string | null>(null)
+  const uploadAvatar = useUploadAvatar()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) uploadAvatar.mutate(file)
+  }
 
   const { data: pending, isLoading: pendingLoading } = usePendingStudents()
   const { data: active, isLoading: activeLoading } = useActiveStudents()
@@ -45,11 +53,35 @@ export function CoachDashboardPage() {
         </button>
       </div>
 
-      <div className="coach-hello">
-        <h1 className="h-big">Привіт, {profile?.full_name ?? 'тренер'}</h1>
-        <p>
-          {active?.length ?? 0} учнів, сьогодні тренуються {trainingToday}
-        </p>
+      <div className="coach-hello" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div
+          className="avatar"
+          aria-label="Фото профілю, натисніть щоб змінити"
+          onClick={() => fileInputRef.current?.click()}
+          style={{ cursor: 'pointer', width: 64, height: 64, fontSize: 20 }}
+        >
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt=""
+              style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+            />
+          ) : (
+            profile && initials(profile.full_name)
+          )}
+          <span className="cam">
+            <Icon name="cam" />
+          </span>
+        </div>
+        <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
+        <div>
+          <h1 className="h-big" style={{ fontSize: 28 }}>
+            Привіт, {profile?.full_name ?? 'тренер'}
+          </h1>
+          <p style={{ margin: '4px 0 0' }}>
+            {active?.length ?? 0} учнів, сьогодні тренуються {trainingToday}
+          </p>
+        </div>
       </div>
 
       {!pendingLoading &&

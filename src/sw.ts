@@ -10,26 +10,26 @@ declare let self: ServiceWorkerGlobalScope
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
 
-// Дані тренувань (тренування, розминка, вправи, профіль) — щоб сторінка
-// тренування відкривалась і без інтернету, показуючи останні завантажені дані.
+// Дані з бази (усі таблиці) — щоб сторінка тренування відкривалась і без
+// інтернету, показуючи останні завантажені дані. НЕ для фото — фото це
+// окремий, вужчий маршрут нижче (за request.destination, а не за хостом,
+// інакше він перехоплює й ці API-запити, показуючи назавжди застарілі дані).
 registerRoute(
-  ({ url }) =>
-    url.hostname.endsWith('.supabase.co') &&
-    url.pathname.startsWith('/rest/v1/') &&
-    /\/(trainings|warmup_items|exercises|profiles|training_types)(\?|$)/.test(url.pathname),
+  ({ url }) => url.hostname.endsWith('.supabase.co') && url.pathname.startsWith('/rest/v1/'),
   new NetworkFirst({
     cacheName: 'supabase-data',
     networkTimeoutSeconds: 4,
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
-      new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 7 }),
+      new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 7 }),
     ],
   }),
 )
 
-// Фото (аватари, матеріали, бренд) — довше живуть у кеші.
+// Фото (аватари, матеріали, бренд) — довше живуть у кеші. Визначаємо саме
+// за типом запиту (картинка), а не за хостом.
 registerRoute(
-  ({ request, url }) => request.destination === 'image' || url.hostname.endsWith('.supabase.co'),
+  ({ request }) => request.destination === 'image',
   new CacheFirst({
     cacheName: 'images',
     plugins: [

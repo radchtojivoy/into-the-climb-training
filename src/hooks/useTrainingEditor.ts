@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../auth/AuthProvider'
-import type { ExerciseRow, TrainingRow, TrainingTypeId, WarmupItemRow } from '../lib/database.types'
+import type { ExerciseResult, ExerciseRow, TrainingRow, TrainingTypeId, WarmupItemRow } from '../lib/database.types'
 
 export interface EditableWarmupItem {
   key: string
   text: string
+  isDone: boolean
 }
 
 export interface EditableExercise {
@@ -14,6 +15,8 @@ export interface EditableExercise {
   description: string
   videoUrl: string
   libraryExerciseId: string | null
+  result: ExerciseResult | null
+  resultComment: string
 }
 
 export interface TrainingEditorData {
@@ -43,13 +46,15 @@ async function fetchTrainingEditorData(studentId: string, date: string): Promise
 
   return {
     training,
-    warmupItems: (warmup as WarmupItemRow[]).map((w) => ({ key: w.id, text: w.text })),
+    warmupItems: (warmup as WarmupItemRow[]).map((w) => ({ key: w.id, text: w.text, isDone: w.is_done })),
     exercises: (exercises as ExerciseRow[]).map((e) => ({
       key: e.id,
       title: e.title,
       description: e.description ?? '',
       videoUrl: e.video_url ?? '',
       libraryExerciseId: e.library_exercise_id,
+      result: e.result,
+      resultComment: e.result_comment ?? '',
     })),
   }
 }
@@ -65,6 +70,8 @@ interface SavePayload {
   typeId: TrainingTypeId
   warmupItems: EditableWarmupItem[]
   exercises: EditableExercise[]
+  originalWarmupIds: string[]
+  originalExerciseIds: string[]
 }
 
 export function useSaveTraining(studentId: string, date: string, existingTrainingId: string | null) {
@@ -72,7 +79,7 @@ export function useSaveTraining(studentId: string, date: string, existingTrainin
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ typeId, warmupItems, exercises }: SavePayload) => {
+    mutationFn: async ({ typeId, warmupItems, exercises, originalWarmupIds, originalExerciseIds }: SavePayload) => {
       if (!session) throw new Error('Немає сесії')
 
       let trainingId = existingTrainingId
@@ -89,16 +96,30 @@ export function useSaveTraining(studentId: string, date: string, existingTrainin
         trainingId = data.id
       }
 
-      await supabase.from('warmup_items').delete().eq('training_id', trainingId)
+      // Розминку й вправи оновлюємо через upsert за id (а не видалення+вставка
+      // наново) — інакше відмітки виконання й результати учня стирались би
+      // щоразу, коли тренер зберігає тренування.
+      const currentWarmupIds = new Set(warmupItems.map((w) => w.key))
+      const removedWarmupIds = originalWarmupIds.filter((id) => !currentWarmupIds.has(id))
+      if (removedWarmupIds.length) {
+        const { error } = await supabase.from('warmup_items').delete().in('id', removedWarmupIds)
+        if (error) throw error
+      }
       if (warmupItems.length) {
-        const rows = warmupItems.map((w, i) => ({ training_id: trainingId, position: i, text: w.text }))
-        const { error } = await supabase.from('warmup_items').insert(rows)
+        const rows = warmupItems.map((w, i) => ({ id: w.key, training_id: trainingId, position: i, text: w.text }))
+        const { error } = await supabase.from('warmup_items').upsert(rows, { onConflict: 'id' })
         if (error) throw error
       }
 
-      await supabase.from('exercises').delete().eq('training_id', trainingId)
+      const currentExerciseIds = new Set(exercises.map((e) => e.key))
+      const removedExerciseIds = originalExerciseIds.filter((id) => !currentExerciseIds.has(id))
+      if (removedExerciseIds.length) {
+        const { error } = await supabase.from('exercises').delete().in('id', removedExerciseIds)
+        if (error) throw error
+      }
       if (exercises.length) {
         const rows = exercises.map((e, i) => ({
+          id: e.key,
           training_id: trainingId,
           position: i,
           title: e.title,
@@ -106,7 +127,7 @@ export function useSaveTraining(studentId: string, date: string, existingTrainin
           video_url: e.videoUrl || null,
           library_exercise_id: e.libraryExerciseId,
         }))
-        const { error } = await supabase.from('exercises').insert(rows)
+        const { error } = await supabase.from('exercises').upsert(rows, { onConflict: 'id' })
         if (error) throw error
       }
 
