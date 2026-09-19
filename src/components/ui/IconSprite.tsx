@@ -49,6 +49,18 @@ export function IconSprite() {
         <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round">
           <path d="M6 6l12 12M18 6 6 18" />
         </symbol>
+        <symbol id="i-half" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4}>
+          <circle cx="12" cy="12" r="8" />
+          <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" />
+        </symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
+          <rect x="5" y="11" width="14" height="10" rx="2.5" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </symbol>
+        <symbol id="i-smile" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01" />
+        </symbol>
         <symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinejoin="round">
           <circle cx="12" cy="12" r="9.5" />
           <path d="M10 8.5v7l6-3.5z" fill="currentColor" />

@@ -4,7 +4,6 @@ import { useAuth } from './auth/AuthProvider'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { WaitingPage } from './pages/WaitingPage'
-import { PlaceholderHomePage } from './pages/PlaceholderHomePage'
 import { CoachDashboardPage } from './pages/coach/CoachDashboardPage'
 import { StudentPage } from './pages/coach/StudentPage'
 import { TrainingEditorPage } from './pages/coach/TrainingEditorPage'
@@ -12,6 +11,11 @@ import { LibraryPage } from './pages/coach/LibraryPage'
 import { ExerciseEditorPage } from './pages/coach/ExerciseEditorPage'
 import { TemplateEditorPage } from './pages/coach/TemplateEditorPage'
 import { CoachMaterialsPlaceholderPage } from './pages/coach/CoachMaterialsPlaceholderPage'
+import { StudentCalendarPage } from './pages/student/StudentCalendarPage'
+import { StudentTrainingPage } from './pages/student/StudentTrainingPage'
+import { StudentFunTrainingPage } from './pages/student/StudentFunTrainingPage'
+import { StudentDashboardPage } from './pages/student/StudentDashboardPage'
+import { StudentMaterialsPlaceholderPage } from './pages/student/StudentMaterialsPlaceholderPage'
 
 function FullScreenSpinner() {
   return (
@@ -30,7 +34,7 @@ function Gate() {
 
   if (profile.role === 'coach') return <Navigate to="/coach" replace />
   if (profile.status === 'pending') return <WaitingPage />
-  return <PlaceholderHomePage />
+  return <Navigate to="/calendar" replace />
 }
 
 function PublicOnly({ children }: { children: ReactNode }) {
@@ -44,6 +48,13 @@ function RequireCoach({ children }: { children: ReactNode }) {
   const { profile, loading } = useAuth()
   if (loading) return <FullScreenSpinner />
   if (!profile || profile.role !== 'coach') return <Navigate to="/" replace />
+  return <>{children}</>
+}
+
+function RequireActiveStudent({ children }: { children: ReactNode }) {
+  const { profile, loading } = useAuth()
+  if (loading) return <FullScreenSpinner />
+  if (!profile || profile.role !== 'student' || profile.status !== 'active') return <Navigate to="/" replace />
   return <>{children}</>
 }
 
@@ -138,6 +149,47 @@ export default function App() {
           <RequireCoach>
             <CoachMaterialsPlaceholderPage />
           </RequireCoach>
+        }
+      />
+
+      <Route
+        path="/calendar"
+        element={
+          <RequireActiveStudent>
+            <StudentCalendarPage />
+          </RequireActiveStudent>
+        }
+      />
+      <Route
+        path="/training/:date"
+        element={
+          <RequireActiveStudent>
+            <StudentTrainingPage />
+          </RequireActiveStudent>
+        }
+      />
+      <Route
+        path="/training/:date/fun"
+        element={
+          <RequireActiveStudent>
+            <StudentFunTrainingPage />
+          </RequireActiveStudent>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <RequireActiveStudent>
+            <StudentDashboardPage />
+          </RequireActiveStudent>
+        }
+      />
+      <Route
+        path="/materials"
+        element={
+          <RequireActiveStudent>
+            <StudentMaterialsPlaceholderPage />
+          </RequireActiveStudent>
         }
       />
 
