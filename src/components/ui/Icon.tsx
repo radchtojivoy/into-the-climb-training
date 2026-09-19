@@ -21,6 +21,8 @@ interface IconProps {
     | 'save'
     | 'copy'
     | 'search'
+    | 'list'
+    | 'img'
   className?: string
 }
 

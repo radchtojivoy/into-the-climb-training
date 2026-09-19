@@ -19,7 +19,7 @@ function timeDiffHours(start: string, end: string): number {
 }
 
 export function StudentDashboardPage() {
-  const { profile } = useAuth()
+  const { profile, signOut } = useAuth()
   const navigate = useNavigate()
   const now = new Date()
   const today = todayIso()
@@ -89,6 +89,26 @@ export function StudentDashboardPage() {
           <div className="logo-pill">
             <img src="/brand/logo.png" alt="Into the Climb" />
           </div>
+          <button
+            onClick={() => signOut()}
+            style={{
+              position: 'absolute',
+              top: 52,
+              right: 18,
+              zIndex: 2,
+              background: 'rgba(242,235,220,.86)',
+              WebkitBackdropFilter: 'blur(8px)',
+              backdropFilter: 'blur(8px)',
+              border: 0,
+              borderRadius: 14,
+              padding: '8px 14px',
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--clay)',
+            }}
+          >
+            Вийти
+          </button>
         </div>
 
         <div className="screen-pad">

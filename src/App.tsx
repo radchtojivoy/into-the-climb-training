@@ -10,12 +10,14 @@ import { TrainingEditorPage } from './pages/coach/TrainingEditorPage'
 import { LibraryPage } from './pages/coach/LibraryPage'
 import { ExerciseEditorPage } from './pages/coach/ExerciseEditorPage'
 import { TemplateEditorPage } from './pages/coach/TemplateEditorPage'
-import { CoachMaterialsPlaceholderPage } from './pages/coach/CoachMaterialsPlaceholderPage'
+import { CoachMaterialsPage } from './pages/coach/CoachMaterialsPage'
+import { MaterialEditorPage } from './pages/coach/MaterialEditorPage'
 import { StudentCalendarPage } from './pages/student/StudentCalendarPage'
 import { StudentTrainingPage } from './pages/student/StudentTrainingPage'
 import { StudentFunTrainingPage } from './pages/student/StudentFunTrainingPage'
 import { StudentDashboardPage } from './pages/student/StudentDashboardPage'
-import { StudentMaterialsPlaceholderPage } from './pages/student/StudentMaterialsPlaceholderPage'
+import { StudentMaterialsPage } from './pages/student/StudentMaterialsPage'
+import { MaterialArticlePage } from './pages/student/MaterialArticlePage'
 
 function FullScreenSpinner() {
   return (
@@ -147,7 +149,23 @@ export default function App() {
         path="/coach/materials"
         element={
           <RequireCoach>
-            <CoachMaterialsPlaceholderPage />
+            <CoachMaterialsPage />
+          </RequireCoach>
+        }
+      />
+      <Route
+        path="/coach/materials/new"
+        element={
+          <RequireCoach>
+            <MaterialEditorPage />
+          </RequireCoach>
+        }
+      />
+      <Route
+        path="/coach/materials/edit/:id"
+        element={
+          <RequireCoach>
+            <MaterialEditorPage />
           </RequireCoach>
         }
       />
@@ -188,7 +206,15 @@ export default function App() {
         path="/materials"
         element={
           <RequireActiveStudent>
-            <StudentMaterialsPlaceholderPage />
+            <StudentMaterialsPage />
+          </RequireActiveStudent>
+        }
+      />
+      <Route
+        path="/materials/:id"
+        element={
+          <RequireActiveStudent>
+            <MaterialArticlePage />
           </RequireActiveStudent>
         }
       />
