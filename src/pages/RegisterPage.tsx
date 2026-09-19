@@ -87,7 +87,7 @@ export function RegisterPage() {
 
   return (
     <div className="screen">
-      <div className="screen-pad" style={{ flex: 1, paddingTop: 24, paddingBottom: 32 }}>
+      <div style={{ flex: 1, paddingTop: 24, paddingBottom: 32 }}>
         <div className="reg-title">
           <h2 className="h-mid">Створи профіль</h2>
           <p>Тренер отримає заявку і відкриє тобі доступ до програми.</p>
@@ -157,7 +157,11 @@ export function RegisterPage() {
             </div>
           </div>
 
-          {error && <span className="error" style={{ display: 'block', marginTop: 12 }}>{error}</span>}
+          {error && (
+            <span className="error" style={{ display: 'block', marginTop: 12, padding: '0 20px' }}>
+              {error}
+            </span>
+          )}
 
           <div className="reg-foot">
             <button className="btn-main" type="submit" disabled={loading}>

@@ -16,6 +16,9 @@ logs
 *.log
 npm-debug.log*
 
+# службові файли сесії Claude Code
+.claude/scheduled_tasks.lock
+
 # editor / OS
 .vscode/*
 !.vscode/extensions.json

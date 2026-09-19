@@ -25,7 +25,7 @@ export function LoginPage() {
 
   return (
     <div className="screen">
-      <div className="screen-pad" style={{ flex: 1, paddingTop: 24, paddingBottom: 32 }}>
+      <div style={{ flex: 1, paddingTop: 24, paddingBottom: 32 }}>
         <div className="reg-top">
           <img src="/brand/logo.png" alt="Into the Climb" />
         </div>
