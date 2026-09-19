@@ -1,0 +1,79 @@
+:root {
+  /* фон і поверхні */
+  --paper: #f2ebdc;
+  --paper-2: #e7dcc5;
+  --paper-3: #dccdb0;
+
+  /* акценти */
+  --clay: #b5532a;
+  --ink: #1a1a1a;
+  --olive: #535328;
+  --ochre: #c48a2c;
+  --rust: #7a3719;
+  --sage: #8a8f55;
+
+  --muted: rgba(26, 26, 26, 0.56);
+  --line: rgba(26, 26, 26, 0.12);
+
+  /* кольори типів тренувань */
+  --type-sila: #b5532a;
+  --type-zfp: #535328;
+  --type-tech: #1a1a1a;
+  --type-coord: #c48a2c;
+  --type-end: #7a3719;
+  --type-fun: #8a8f55;
+
+  --radius-lg: 26px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --radius-pill: 999px;
+
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+button,
+select,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--clay);
+  outline-offset: 2px;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
