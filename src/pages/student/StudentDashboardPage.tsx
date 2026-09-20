@@ -117,11 +117,7 @@ export function StudentDashboardPage() {
           <div className="who">
             <div className="avatar" aria-label="Фото профілю, натисніть щоб змінити" onClick={handleAvatarClick} style={{ cursor: 'pointer' }}>
               {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt=""
-                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-                />
+                <img src={profile.avatar_url} alt="" />
               ) : (
                 initials(profile.full_name)
               )}

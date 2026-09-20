@@ -61,11 +61,7 @@ export function CoachDashboardPage() {
           style={{ cursor: 'pointer', width: 64, height: 64, fontSize: 20 }}
         >
           {profile?.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt=""
-              style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-            />
+            <img src={profile.avatar_url} alt="" />
           ) : (
             profile && initials(profile.full_name)
           )}
