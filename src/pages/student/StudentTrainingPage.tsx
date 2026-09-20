@@ -183,7 +183,7 @@ export function StudentTrainingPage() {
                     {(
                       [
                         ['ok', 'check', 'Вдало'],
-                        ['part', 'half', 'Частково'],
+                        ['partial', 'half', 'Частково'],
                         ['fail', 'x', 'Невдало'],
                       ] as [ExerciseResult, 'check' | 'half' | 'x', string][]
                     ).map(([value, icon, label]) => (

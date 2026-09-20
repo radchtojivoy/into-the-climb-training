@@ -256,7 +256,7 @@ export function TrainingEditorPage() {
                   {(
                     [
                       ['ok', 'check', 'Вдало'],
-                      ['part', 'half', 'Частково'],
+                      ['partial', 'half', 'Частково'],
                       ['fail', 'x', 'Невдало'],
                     ] as const
                   ).map(([value, icon, label]) => (

@@ -1848,7 +1848,7 @@
   color: var(--paper);
 }
 
-.seg button[aria-pressed='true'][data-v='part'] {
+.seg button[aria-pressed='true'][data-v='partial'] {
   background: var(--ochre);
   color: var(--ink);
 }
