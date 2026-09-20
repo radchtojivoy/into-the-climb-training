@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../auth/AuthProvider'
 import { usePendingStudents, useActiveStudents } from '../../hooks/useCoachStudents'
 import { useUploadAvatar } from '../../hooks/useAvatar'
+import { useHeroPhoto, useUploadHeroPhoto } from '../../hooks/useAppSettings'
 import { avatarColor, initials } from '../../lib/avatarColor'
 import { Icon } from '../../components/ui/Icon'
 import { CoachTabBar } from '../../components/coach/CoachTabBar'
@@ -21,6 +22,15 @@ export function CoachDashboardPage() {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) uploadAvatar.mutate(file)
+  }
+
+  const { data: heroPhotoUrl } = useHeroPhoto()
+  const uploadHeroPhoto = useUploadHeroPhoto()
+  const heroFileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleHeroFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) uploadHeroPhoto.mutate(file)
   }
 
   const { data: pending, isLoading: pendingLoading } = usePendingStudents()
@@ -79,6 +89,41 @@ export function CoachDashboardPage() {
           </p>
         </div>
       </div>
+
+      <button
+        type="button"
+        className="card"
+        onClick={() => heroFileInputRef.current?.click()}
+        style={{
+          margin: '14px 20px 0',
+          width: 'calc(100% - 40px)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          textAlign: 'left',
+          border: 0,
+        }}
+      >
+        <img
+          src={heroPhotoUrl ?? '/brand/hero.jpg'}
+          alt=""
+          style={{ width: 56, height: 56, borderRadius: 14, objectFit: 'cover', flex: 'none' }}
+        />
+        <span style={{ flex: 1 }}>
+          <span style={{ display: 'block', fontWeight: 700, fontSize: 14 }}>Фото на дашборді учня</span>
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--muted)', marginTop: 2 }}>
+            {uploadHeroPhoto.isPending ? 'Завантажую…' : 'Натисни, щоб змінити'}
+          </span>
+        </span>
+        <Icon name="img" style={{ width: 20, height: 20, color: 'var(--muted)', flex: 'none' }} />
+      </button>
+      <input
+        ref={heroFileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleHeroFileChange}
+      />
 
       {!pendingLoading &&
         pending?.map((student) => (

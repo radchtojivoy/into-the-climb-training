@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/AuthProvider'
 import { useMyMonthTrainings, useNextTraining } from '../../hooks/useMyTrainings'
 import { useTrainingTypes } from '../../hooks/useTrainingTypes'
 import { useUploadAvatar } from '../../hooks/useAvatar'
+import { useHeroPhoto } from '../../hooks/useAppSettings'
 import { usePushNotifications } from '../../hooks/usePushNotifications'
 import { MonthRoute } from '../../components/student/MonthRoute'
 import { StudentTabBar } from '../../components/student/StudentTabBar'
@@ -29,6 +30,7 @@ export function StudentDashboardPage() {
   const { data: nextTraining } = useNextTraining(today)
   const { data: types } = useTrainingTypes()
   const uploadAvatar = useUploadAvatar()
+  const { data: heroPhotoUrl } = useHeroPhoto()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [breakdownOpen, setBreakdownOpen] = useState(false)
   const push = usePushNotifications()
@@ -87,7 +89,7 @@ export function StudentDashboardPage() {
     <div className="screen">
       <div className="screen-body">
         <div className="hero">
-          <img className="ph" src="/brand/hero.jpg" alt="" />
+          <img className="ph" src={heroPhotoUrl ?? '/brand/hero.jpg'} alt="" />
           <div className="logo-pill">
             <img src="/brand/logo.png" alt="Into the Climb" />
           </div>

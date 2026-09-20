@@ -112,6 +112,12 @@ export type PushSubscriptionRow = {
   created_at: string
 }
 
+export type AppSettingRow = {
+  key: string
+  value: string | null
+  updated_at: string
+}
+
 type Table<Row, Insert, Update> = {
   Row: Row
   Insert: Insert
@@ -137,6 +143,7 @@ export type Database = {
         Partial<PushSubscriptionRow> & { user_id: string; endpoint: string; p256dh: string; auth: string },
         Partial<PushSubscriptionRow>
       >
+      app_settings: Table<AppSettingRow, Partial<AppSettingRow> & { key: string }, Partial<AppSettingRow>>
     }
     Views: Record<string, never>
     Functions: Record<string, never>
