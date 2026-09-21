@@ -160,7 +160,7 @@ export function CoachDashboardPage() {
           <li key={s.id}>
             <button className={`st${s.missedCount ? ' alert' : ''}`} onClick={() => navigate(`/coach/students/${s.id}`)}>
               <span className="av" style={{ background: avatarColor(s.id) }}>
-                {initials(s.full_name)}
+                {s.avatar_url ? <img src={s.avatar_url} alt="" /> : initials(s.full_name)}
               </span>
               <span>
                 <strong>{s.full_name}</strong>

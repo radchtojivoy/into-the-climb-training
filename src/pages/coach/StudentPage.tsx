@@ -73,7 +73,9 @@ export function StudentPage() {
       </div>
 
       <div className="sp-who">
-        <div className="av">{initials}</div>
+        <div className="av">
+          {student.avatar_url ? <img src={student.avatar_url} alt="" /> : initials}
+        </div>
         <div>
           <h2>{student.full_name}</h2>
           <div className="meta">
