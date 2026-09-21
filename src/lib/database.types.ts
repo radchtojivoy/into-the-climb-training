@@ -43,6 +43,7 @@ export type TrainingRow = {
   start_time: string | null
   end_time: string | null
   is_done: boolean
+  warmup_note: string | null
   created_by: string
   created_at: string
   updated_at: string

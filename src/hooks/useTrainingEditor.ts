@@ -70,6 +70,7 @@ interface SavePayload {
   typeId: TrainingTypeId
   warmupItems: EditableWarmupItem[]
   exercises: EditableExercise[]
+  warmupNote: string
   originalWarmupIds: string[]
   originalExerciseIds: string[]
 }
@@ -79,17 +80,34 @@ export function useSaveTraining(studentId: string, date: string, existingTrainin
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ typeId, warmupItems, exercises, originalWarmupIds, originalExerciseIds }: SavePayload) => {
+    mutationFn: async ({
+      typeId,
+      warmupItems,
+      exercises,
+      warmupNote,
+      originalWarmupIds,
+      originalExerciseIds,
+    }: SavePayload) => {
       if (!session) throw new Error('Немає сесії')
 
       let trainingId = existingTrainingId
       if (trainingId) {
-        const { error } = await supabase.from('trainings').update({ type_id: typeId }).eq('id', trainingId)
+        const { error } = await supabase
+          .from('trainings')
+          .update({ type_id: typeId, warmup_note: warmupNote || null })
+          .eq('id', trainingId)
         if (error) throw error
       } else {
         const { data, error } = await supabase
           .from('trainings')
-          .insert({ student_id: studentId, date, type_id: typeId, is_fun: false, created_by: session.user.id })
+          .insert({
+            student_id: studentId,
+            date,
+            type_id: typeId,
+            is_fun: false,
+            warmup_note: warmupNote || null,
+            created_by: session.user.id,
+          })
           .select('id')
           .single()
         if (error) throw error

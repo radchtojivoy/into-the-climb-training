@@ -126,29 +126,50 @@ export function StudentTrainingPage() {
           onChange={(v) => updateTiming.mutate({ id: training.id, startTime: v })}
         />
 
-        {warmupItems.length > 0 && (
+        {(warmupItems.length > 0 || training.warmup_note) && (
           <>
             <div className="sec-title">
               <h3>Розминка</h3>
-              <span>
-                {doneWarmup} з {warmupItems.length}
-              </span>
+              {warmupItems.length > 0 && (
+                <span>
+                  {doneWarmup} з {warmupItems.length}
+                </span>
+              )}
             </div>
-            <div className="warm">
-              {warmupItems.map((w) => (
-                <label key={w.id}>
-                  <input
-                    type="checkbox"
-                    checked={w.is_done}
-                    onChange={(e) => toggleWarmup.mutate({ id: w.id, isDone: e.target.checked })}
-                  />
-                  <span className="box">
-                    <Icon name="check" />
-                  </span>
-                  <span>{w.text}</span>
-                </label>
-              ))}
-            </div>
+            {warmupItems.length > 0 && (
+              <div className="warm">
+                {warmupItems.map((w) => (
+                  <label key={w.id}>
+                    <input
+                      type="checkbox"
+                      checked={w.is_done}
+                      onChange={(e) => toggleWarmup.mutate({ id: w.id, isDone: e.target.checked })}
+                    />
+                    <span className="box">
+                      <Icon name="check" />
+                    </span>
+                    <span>{w.text}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            {training.warmup_note && (
+              <div
+                style={{
+                  margin: '10px 20px 0',
+                  background: 'var(--paper-2)',
+                  borderRadius: 16,
+                  padding: '12px 14px',
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                }}
+              >
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--muted)', marginBottom: 4 }}>
+                  Нотатка тренера
+                </div>
+                {training.warmup_note}
+              </div>
+            )}
           </>
         )}
 

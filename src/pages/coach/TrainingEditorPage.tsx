@@ -44,6 +44,7 @@ export function TrainingEditorPage() {
 
   const [typeId, setTypeId] = useState<TrainingTypeId>('sila')
   const [warmupItems, setWarmupItems] = useState<EditableWarmupItem[]>([])
+  const [warmupNote, setWarmupNote] = useState('')
   const [exercises, setExercises] = useState<EditableExercise[]>([])
   const [showLibraryPicker, setShowLibraryPicker] = useState(false)
   const hydrated = useRef(false)
@@ -53,6 +54,7 @@ export function TrainingEditorPage() {
     if (!editorData || hydrated.current) return
     hydrated.current = true
     if (editorData.training) setTypeId(editorData.training.type_id)
+    setWarmupNote(editorData.training?.warmup_note ?? '')
     setWarmupItems(editorData.warmupItems)
     setExercises(editorData.exercises)
     originalIds.current = {
@@ -123,6 +125,7 @@ export function TrainingEditorPage() {
       typeId,
       warmupItems,
       exercises,
+      warmupNote,
       originalWarmupIds: originalIds.current.warmup,
       originalExerciseIds: originalIds.current.exercises,
     })
@@ -209,6 +212,16 @@ export function TrainingEditorPage() {
           </button>
         </li>
       </ul>
+
+      <label className="field" style={{ margin: '10px 20px 0' }}>
+        <span>Нотатка до розминки (бачить учень, редагує лише тренер)</span>
+        <textarea
+          rows={2}
+          placeholder="Рекомендації чи пояснення до розминки"
+          value={warmupNote}
+          onChange={(e) => setWarmupNote(e.target.value)}
+        />
+      </label>
 
       <div className="sec-title">
         <h3>Основна частина</h3>
