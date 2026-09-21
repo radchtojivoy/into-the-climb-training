@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   useMyTrainingDetail,
@@ -14,6 +14,12 @@ import { TimeSelect } from '../../components/ui/TimeSelect'
 import { StudentTabBar } from '../../components/student/StudentTabBar'
 import { DOW_NAMES_NOMINATIVE, MONTHS_GENITIVE } from '../../lib/months'
 import type { ExerciseResult } from '../../lib/database.types'
+
+function formatRest(seconds: number) {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
 
 function formatDateHeading(date: string) {
   const [y, m, d] = date.split('-').map(Number)
@@ -180,7 +186,8 @@ export function StudentTrainingPage() {
               <span>{exercises.length} вправ</span>
             </div>
             {exercises.map((ex, i) => (
-              <article className="ex" key={ex.id}>
+              <Fragment key={ex.id}>
+              <article className="ex">
                 <div className="ex-head">
                   <span className="ex-num">{i + 1}</span>
                   <div>
@@ -236,6 +243,26 @@ export function StudentTrainingPage() {
                   />
                 </div>
               </article>
+              {!!ex.rest_seconds && (
+                <div
+                  style={{
+                    margin: '0 20px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    background: 'var(--paper-2)',
+                    borderRadius: 16,
+                    padding: '10px 14px',
+                  }}
+                >
+                  <Icon name="timer" style={{ width: 18, height: 18, color: 'var(--muted)', flex: 'none' }} />
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>Відпочинок після вправи</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800 }}>
+                    {formatRest(ex.rest_seconds)}
+                  </span>
+                </div>
+              )}
+              </Fragment>
             ))}
           </>
         )}

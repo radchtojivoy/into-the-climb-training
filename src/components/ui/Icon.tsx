@@ -25,6 +25,7 @@ interface IconProps {
     | 'search'
     | 'list'
     | 'img'
+    | 'timer'
   className?: string
   style?: CSSProperties
 }

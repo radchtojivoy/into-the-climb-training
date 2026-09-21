@@ -61,6 +61,7 @@ export interface TrainingDetail {
     video_url: string | null
     result: ExerciseResult | null
     result_comment: string | null
+    rest_seconds: number | null
     position: number
   }[]
 }

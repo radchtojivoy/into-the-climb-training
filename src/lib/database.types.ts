@@ -67,6 +67,7 @@ export type ExerciseRow = {
   library_exercise_id: string | null
   result: ExerciseResult | null
   result_comment: string | null
+  rest_seconds: number | null
 }
 
 export type LibraryExerciseRow = {

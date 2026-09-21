@@ -17,6 +17,7 @@ export interface EditableExercise {
   libraryExerciseId: string | null
   result: ExerciseResult | null
   resultComment: string
+  restSeconds: number | null
 }
 
 export interface TrainingEditorData {
@@ -55,6 +56,7 @@ async function fetchTrainingEditorData(studentId: string, date: string): Promise
       libraryExerciseId: e.library_exercise_id,
       result: e.result,
       resultComment: e.result_comment ?? '',
+      restSeconds: e.rest_seconds,
     })),
   }
 }
@@ -144,6 +146,7 @@ export function useSaveTraining(studentId: string, date: string, existingTrainin
           description: e.description || null,
           video_url: e.videoUrl || null,
           library_exercise_id: e.libraryExerciseId,
+          rest_seconds: e.restSeconds,
         }))
         const { error } = await supabase.from('exercises').upsert(rows, { onConflict: 'id' })
         if (error) throw error

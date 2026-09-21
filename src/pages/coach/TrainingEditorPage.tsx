@@ -90,7 +90,16 @@ export function TrainingEditorPage() {
   function addManualExercise() {
     setExercises((ex) => [
       ...ex,
-      { key: newKey(), title: '', description: '', videoUrl: '', libraryExerciseId: null, result: null, resultComment: '' },
+      {
+        key: newKey(),
+        title: '',
+        description: '',
+        videoUrl: '',
+        libraryExerciseId: null,
+        result: null,
+        resultComment: '',
+        restSeconds: null,
+      },
     ])
   }
 
@@ -107,6 +116,7 @@ export function TrainingEditorPage() {
         libraryExerciseId: lib.id,
         result: null,
         resultComment: '',
+        restSeconds: null,
       },
     ])
     setShowLibraryPicker(false)
@@ -258,6 +268,43 @@ export function TrainingEditorPage() {
               onChange={(e) => updateExercise(ex.key, { videoUrl: e.target.value })}
             />
           </label>
+
+          <div className="link" style={{ marginTop: 8 }}>
+            <Icon name="timer" />
+            <span style={{ fontSize: 13, fontWeight: 600, flex: 1 }}>Відпочинок після вправи</span>
+            <input
+              type="number"
+              min={0}
+              max={59}
+              inputMode="numeric"
+              aria-label="Хвилини відпочинку"
+              value={Math.floor((ex.restSeconds ?? 0) / 60) || ''}
+              placeholder="0"
+              onChange={(e) => {
+                const min = Math.max(0, Number(e.target.value) || 0)
+                const sec = (ex.restSeconds ?? 0) % 60
+                updateExercise(ex.key, { restSeconds: min * 60 + sec || null })
+              }}
+              style={{ width: 34, flex: 'none', textAlign: 'center', background: 'var(--paper)', borderRadius: 8, padding: '6px 0' }}
+            />
+            <span style={{ fontSize: 12, color: 'var(--muted)', flex: 'none' }}>хв</span>
+            <input
+              type="number"
+              min={0}
+              max={59}
+              inputMode="numeric"
+              aria-label="Секунди відпочинку"
+              value={(ex.restSeconds ?? 0) % 60 || ''}
+              placeholder="0"
+              onChange={(e) => {
+                const sec = Math.min(59, Math.max(0, Number(e.target.value) || 0))
+                const min = Math.floor((ex.restSeconds ?? 0) / 60)
+                updateExercise(ex.key, { restSeconds: min * 60 + sec || null })
+              }}
+              style={{ width: 34, flex: 'none', textAlign: 'center', background: 'var(--paper)', borderRadius: 8, padding: '6px 0' }}
+            />
+            <span style={{ fontSize: 12, color: 'var(--muted)', flex: 'none' }}>сек</span>
+          </div>
 
           {(ex.result || ex.resultComment) && (
             <>
