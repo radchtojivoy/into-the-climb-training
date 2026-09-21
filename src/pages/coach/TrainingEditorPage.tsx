@@ -131,15 +131,19 @@ export function TrainingEditorPage() {
   }
 
   async function handleSave() {
-    await saveTraining.mutateAsync({
-      typeId,
-      warmupItems,
-      exercises,
-      warmupNote,
-      originalWarmupIds: originalIds.current.warmup,
-      originalExerciseIds: originalIds.current.exercises,
-    })
-    navigate(`/coach/students/${studentId}`)
+    try {
+      await saveTraining.mutateAsync({
+        typeId,
+        warmupItems,
+        exercises,
+        warmupNote,
+        originalWarmupIds: originalIds.current.warmup,
+        originalExerciseIds: originalIds.current.exercises,
+      })
+      navigate(`/coach/students/${studentId}`)
+    } catch {
+      // помилку показує saveTraining.isError нижче
+    }
   }
 
   if (isLoading || !student || !types) {
@@ -371,6 +375,11 @@ export function TrainingEditorPage() {
       </div>
 
       <div className="save-wrap">
+        {saveTraining.isError && (
+          <span className="error" style={{ display: 'block', marginBottom: 10 }}>
+            Не вдалося зберегти. Перевір, що учень закріплений саме за цим твоїм акаунтом, і спробуй ще раз.
+          </span>
+        )}
         <button className="btn-main" onClick={handleSave} disabled={saveTraining.isPending}>
           <Icon name="save" />
           {saveTraining.isPending ? 'Зберігаю…' : 'Зберегти тренування'}
