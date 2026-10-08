@@ -161,3 +161,99 @@ export function useSaveTraining(studentId: string, date: string, existingTrainin
     },
   })
 }
+
+async function assertDateFree(studentId: string, date: string) {
+  const { data, error } = await supabase
+    .from('trainings')
+    .select('id')
+    .eq('student_id', studentId)
+    .eq('date', date)
+    .eq('is_fun', false)
+    .maybeSingle()
+  if (error) throw error
+  if (data) throw new Error('На цю дату вже є тренування')
+}
+
+export function useMoveTraining(studentId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ trainingId, newDate }: { trainingId: string; newDate: string }) => {
+      await assertDateFree(studentId, newDate)
+      const { error } = await supabase.from('trainings').update({ date: newDate }).eq('id', trainingId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['training-editor'] })
+      queryClient.invalidateQueries({ queryKey: ['trainings', studentId] })
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+    },
+  })
+}
+
+interface CopyPayload {
+  newDate: string
+  typeId: TrainingTypeId
+  warmupNote: string
+  warmupItems: EditableWarmupItem[]
+  exercises: EditableExercise[]
+}
+
+export function useCopyTraining(studentId: string) {
+  const { session } = useAuth()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ newDate, typeId, warmupNote, warmupItems, exercises }: CopyPayload) => {
+      if (!session) throw new Error('Немає сесії')
+      await assertDateFree(studentId, newDate)
+
+      const { data, error } = await supabase
+        .from('trainings')
+        .insert({
+          student_id: studentId,
+          date: newDate,
+          type_id: typeId,
+          is_fun: false,
+          warmup_note: warmupNote || null,
+          created_by: session.user.id,
+        })
+        .select('id')
+        .single()
+      if (error) throw error
+      const trainingId = data.id
+
+      if (warmupItems.length) {
+        const rows = warmupItems.map((w, i) => ({
+          id: crypto.randomUUID(),
+          training_id: trainingId,
+          position: i,
+          text: w.text,
+        }))
+        const { error: wErr } = await supabase.from('warmup_items').insert(rows)
+        if (wErr) throw wErr
+      }
+      if (exercises.length) {
+        const rows = exercises.map((e, i) => ({
+          id: crypto.randomUUID(),
+          training_id: trainingId,
+          position: i,
+          title: e.title,
+          description: e.description || null,
+          video_url: e.videoUrl || null,
+          library_exercise_id: e.libraryExerciseId,
+          rest_seconds: e.restSeconds,
+        }))
+        const { error: eErr } = await supabase.from('exercises').insert(rows)
+        if (eErr) throw eErr
+      }
+
+      return trainingId
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['training-editor'] })
+      queryClient.invalidateQueries({ queryKey: ['trainings', studentId] })
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+    },
+  })
+}

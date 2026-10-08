@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTrainingTypes } from '../../hooks/useTrainingTypes'
 import { useStudentDetail } from '../../hooks/useStudentDetail'
-import { useTrainingEditorData, useSaveTraining } from '../../hooks/useTrainingEditor'
+import { useTrainingEditorData, useSaveTraining, useMoveTraining, useCopyTraining } from '../../hooks/useTrainingEditor'
 import type { EditableExercise, EditableWarmupItem } from '../../hooks/useTrainingEditor'
 import { useLibraryExercises, useWarmupTemplates } from '../../hooks/useLibrary'
 import { HoldIcon } from '../../components/ui/HoldIcon'
@@ -41,12 +41,16 @@ export function TrainingEditorPage() {
   const { data: libraryExercises } = useLibraryExercises()
   const { data: templates } = useWarmupTemplates()
   const saveTraining = useSaveTraining(studentId, date, editorData?.training?.id ?? null)
+  const moveTraining = useMoveTraining(studentId)
+  const copyTraining = useCopyTraining(studentId)
 
   const [typeId, setTypeId] = useState<TrainingTypeId>('sila')
   const [warmupItems, setWarmupItems] = useState<EditableWarmupItem[]>([])
   const [warmupNote, setWarmupNote] = useState('')
   const [exercises, setExercises] = useState<EditableExercise[]>([])
   const [showLibraryPicker, setShowLibraryPicker] = useState(false)
+  const [dateAction, setDateAction] = useState<null | 'move' | 'copy'>(null)
+  const [targetDate, setTargetDate] = useState('')
   const hydrated = useRef(false)
   const originalIds = useRef<{ warmup: string[]; exercises: string[] }>({ warmup: [], exercises: [] })
 
@@ -146,6 +150,21 @@ export function TrainingEditorPage() {
     }
   }
 
+  function handleDateActionConfirm() {
+    if (!targetDate || !editorData?.training) return
+    if (dateAction === 'move') {
+      moveTraining.mutate(
+        { trainingId: editorData.training.id, newDate: targetDate },
+        { onSuccess: () => navigate(`/coach/students/${studentId}/trainings/${targetDate}`) },
+      )
+    } else if (dateAction === 'copy') {
+      copyTraining.mutate(
+        { newDate: targetDate, typeId, warmupNote, warmupItems, exercises },
+        { onSuccess: () => navigate(`/coach/students/${studentId}/trainings/${targetDate}`) },
+      )
+    }
+  }
+
   if (isLoading || !student || !types) {
     return (
       <div className="screen" style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -165,7 +184,64 @@ export function TrainingEditorPage() {
         <button className="round-btn" aria-label="Назад" onClick={() => navigate(`/coach/students/${studentId}`)}>
           <Icon name="back" />
         </button>
+        {editorData?.training && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              className="round-btn"
+              aria-label="Копіювати на іншу дату"
+              onClick={() => {
+                setDateAction(dateAction === 'copy' ? null : 'copy')
+                setTargetDate('')
+              }}
+            >
+              <Icon name="copy" />
+            </button>
+            <button
+              className="round-btn"
+              aria-label="Перенести на іншу дату"
+              onClick={() => {
+                setDateAction(dateAction === 'move' ? null : 'move')
+                setTargetDate('')
+              }}
+            >
+              <Icon name="cal" />
+            </button>
+          </div>
+        )}
       </div>
+
+      {dateAction && (
+        <div className="card" style={{ margin: '12px 20px 0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <strong style={{ fontSize: 14 }}>
+              {dateAction === 'move' ? 'Перенести тренування на дату' : 'Скопіювати тренування на дату'}
+            </strong>
+            <button className="btn-link" onClick={() => setDateAction(null)}>
+              Скасувати
+            </button>
+          </div>
+          <label className="field">
+            <span>Нова дата</span>
+            <input type="date" aria-label="Нова дата" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />
+          </label>
+          {(moveTraining.isError || copyTraining.isError) && (
+            <span className="error" style={{ display: 'block', margin: '0 0 10px' }}>
+              {(moveTraining.error as Error)?.message || (copyTraining.error as Error)?.message || 'Не вдалося виконати дію'}
+            </span>
+          )}
+          <button
+            className="btn-main"
+            disabled={!targetDate || moveTraining.isPending || copyTraining.isPending}
+            onClick={handleDateActionConfirm}
+          >
+            {moveTraining.isPending || copyTraining.isPending
+              ? 'Виконую…'
+              : dateAction === 'move'
+                ? 'Перенести'
+                : 'Скопіювати'}
+          </button>
+        </div>
+      )}
 
       <div className="ed-date">
         <div className="dw">
