@@ -152,16 +152,14 @@ export function TrainingEditorPage() {
 
   function handleDateActionConfirm() {
     if (!targetDate || !editorData?.training) return
+    const onSuccess = () => {
+      setDateAction(null)
+      navigate(`/coach/students/${studentId}/trainings/${targetDate}`)
+    }
     if (dateAction === 'move') {
-      moveTraining.mutate(
-        { trainingId: editorData.training.id, newDate: targetDate },
-        { onSuccess: () => navigate(`/coach/students/${studentId}/trainings/${targetDate}`) },
-      )
+      moveTraining.mutate({ trainingId: editorData.training.id, newDate: targetDate }, { onSuccess })
     } else if (dateAction === 'copy') {
-      copyTraining.mutate(
-        { newDate: targetDate, typeId, warmupNote, warmupItems, exercises },
-        { onSuccess: () => navigate(`/coach/students/${studentId}/trainings/${targetDate}`) },
-      )
+      copyTraining.mutate({ newDate: targetDate, typeId, warmupNote, warmupItems, exercises }, { onSuccess })
     }
   }
 
